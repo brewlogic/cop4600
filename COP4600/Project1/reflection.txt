@@ -1,0 +1,111 @@
+Reflection
+
+What I did.
+
+Implement Minix system call as part of PM server. In /usr/src/servers/pm/table.c I changed no_sys 69 = unused, to my_sys. Next, in the file /usr/src/include/minix/callnr.h I added the macro #define MYSYS 69. In the /usr/src/servers/pm/proto.h I added int my_sys(void); to define the function prototype for the system call. Next, I created a c file, in the /usr/src/servers/pm directory.
+
+#include <stdio.h> 
+
+int my_sys(){
+	printf("System call 'my_sys' called");
+	return 0;
+}
+
+Now I have a system call table entry, defined system call number, defined system call prototype and implementvied system call in c file. Next I make sure system cal is compiled with the pm server. Add the c file created to /usr/src/servers/pm/Makefimle to the end of the list SRCS = main.c etc.c \
+
+Compile and test system call in /usr/src/releasetools type make services. ***Errors show. Then make install. Finally reboot. Next is usr level library interface to system call.
+
+Next I test new system call with:
+
+#include <lib.h>
+#include <stdio.h>
+
+int main(void){
+	message m;
+	_syscall(PM_PROC_NR, MYSYS, &m);
+}
+
+cc testmysys.c
+
+which does nothing because of the makefile errors. 
+
+Now continuing for fun, I look at /usr/src/include/minix/ipc.h to see the message structures, in particulat type 1 (mess_1). mess_1 has 3 ints and 3 char*. So modify the test code. 
+
+#include <lib.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char **argv){
+	if(argc < 2 )
+		exit(1);
+	int i = atoi(argc[1]);
+	
+	message m;
+
+	m.m1_i1 = i;
+	
+	_syscall(PM_PROC_NR, MYSYS, &m);
+		/* _syscall leads to the system server identified by 							PM_PRO_NR (the PM
+         	* server process) invoking the function identified by call 			number 
+         	* PRINTMSG with parameters in the message copied to address 			&m
+         		*/
+}
+
+
+modified implementation of /usr/src/servers/pm/mysys.c
+
+#include <stdio.h> 
+#include "pm.h"
+int my_sys(){
+	int i = m_in.m1_i1;
+	printf("System call do_mysys called");
+	return 0;
+}
+ 
+again:
+/usr/src/releasetools
+make services - error: use of undeclared identifier 'm_in' solution -> #include "pm.h" missing in mysys.c
+make install -error: undefined reference to mysys.
+reboot
+
+And nothing works, consistency is key here. 
+
+Writing a user library function for the system call. In /usr/src/include/unistd.h add prototype int printmsg(int val); towards the end above __END_DECLS. 
+  
+In /usr/src/lib/libc/sys-minix create a c file called printmsg.c
+
+int printmsg(int val) {
+    message m;      // Minix message to pass parameters to a system call
+    
+    m.m1_i1 = val;
+    return _syscall(PM_PROC_NR, PRINTMSG, &m); 
+}
+
+Add printmsg.c to list of SRCS in /usr/src/lib/libc/sys-minix/Makefile.inc
+
+Next, in /usr/src I typed make buld, then reboot. 
+
+Then I made testmysys2.c in root and tried to test the library function. 
+
+Challenges.
+
+My changes in EX 2 gave me errors when running make services, I was missing the n in \n. 
+In /usr/src/releasetools make services says error code 1. undefined reference to 'my_sys', stopped in servers/pm, stopped in servers/ stopped in releasetools. linker command failed with exit code 1. 
+
+testmysys.c does not work.
+
+testmysys2.c does not work either.
+
+solutions.
+
+Changed the boot message in kernel to not throw an error. 
+Missing an include "pm.h"
+
+testing methods
+
+I tested the system call and library function call by creating c programs in the root directory.
+
+
+bugs/limits
+
+I do not understand how to get the definitions working together when I make build etc. Nothing works as of now. I do not understand how to get the test c files onto minix without vi and writing them out. 

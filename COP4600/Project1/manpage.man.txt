@@ -1,0 +1,20 @@
+./ This is man page project 1 COP 4600 2017 Spring George Brewster
+.TH Header of man page
+
+.SH NAME
+Project1
+
+.SH DECRIPTION
+This project creates a system call, and library calls to access the system call. Also a reflection report, and testing files
+
+.SH OPTIONS
+.TP -o
+not an option
+.TP -f
+another "non option"
+
+.SH SYNOPSIS
+Project1 [1|0]\-toggle on off
+
+.SH AUTHOR
+George Brewster

@@ -1,0 +1,94 @@
+Project 1
+
+COP 4600 
+Spring 2017
+
+Due: Feb 4 (patch file, code, report on Canvas)
+Demo by signup on Doodle poll (see Canvas).
+
+Brief Description:
+Implement a new system call in Minix 3.2.1, along with two library functions 
+in the system library that allow it to be called from a C program. 
+We will provide a C program that exercises and demonstrates the new call. 
+Demonstrate the system call by building your modified Minix 3 with the new
+system call, compiling our demo program, then running the demo program on your 
+modified Minix 3 for the TA during the slot that you reserved. 
+Be prepared to discuss what you did, what problems you faced, how you solved
+them, what files you modified, and what you learned. 
+
+Details of System Call:
+You will first modify the process table to include a new integer value, 
+tag, initialized to zero.  
+The new system call will allow 
+(a) the value of tag to be read by the process or a process with root access, 
+(b) the value of tag to be written by a process with root access
+Comment: The tag will later be used in access control.
+
+Library procedures:
+You will also implement library procedures that can be referenced by 
+a C program to demonstrate the call. These must be included in the system
+library so that compiling a C program that references them will work (i.e., 
+the references to these calls will be resolved). 
+
+The library procedures will have prototypes
+int set_tag(int PID, int newvalue);
+int get_tag(int PID); 
+Both will return the value of tag, or an error number (negative). 
+
+The argument PID will be the process ID of the process whose tag is to be 
+accessed, and newvalue will be the new value of the non-negative tag. 
+A successful call to get_tag(P) that immediately follows a successful call 
+to set_tag(P,v) shall return the value v (i.e., the set_tag call shall 
+change the value of tag for process P to v, which shall be returned when
+get_tag is called). 
+
+Both the get_tag() and the set_tag() call shall fail if the process ID 
+refers to an invalid PID (either out of bounds or a process table entry 
+that is not in use); the PID must refer to a live process (in any state). 
+
+The set_tag() call shall also fail if the value is negative. 
+
+Failure shall be indicated by a return value of -1.
+
+Test program:
+We will supply a simple test program, but you may want to implement your
+own program(s) for testing. 
+Our test program must compile using the system library after you have
+modified your Minix VM. 
+
+Documentation:
+You will provide the following two documents. 
+
+man page - a manual page for your library procedures in man page format 
+(you may copy and modify an existing man page for this purpose). You must
+place the new man page in the proper location so that entering the command
+man set_tag or man get_tag return the man page for these calls. 
+
+Report (may be pdf, doc, docx, or txt) - this document will explain how you 
+implemented the new system call, including what changes were made to which 
+files and why each change was made.  It will include description of how 
+testing was performed along with any known bugs.
+
+Submission:
+You will submit 
+- a patch file including all the changes made from a fresh installation 
+of Minix 3.2.1 to existing Minix files needed to support the new call 
+(note that this includes any changes to makefiles also)
+- all new source files you created, along with the test files and makefile
+- man page
+- report
+
+Applying the patches and remaking the necessary parts of Minix, then
+rebooting and typing "make test" in the directory with the test code
+should compile the test program and link in the new library object code. 
+
+Demonstration:
+You will sign up to demonstrate your code to a TA on the Doodle poll we will
+set up and make available on Canvas.  You will have 10 minutes to demo and to 
+answer questions.  Do not be late for your demo. Missed demo appointments will 
+deduct 3 points from your score for each missed appointment (late is defined 
+as 1 or more minutes late). 
+
+Helpful resources:
+The Minix3.org website has many helpful documents, and we will add documents 
+to the class website of a more specific nature.  
